@@ -13,7 +13,6 @@ typedef struct nascimento
     int ano;
 } data;
 
-
 typedef struct dados_paciente
 {
     /* DADOS PARA MANIPULAÇÃO DA FILA */
@@ -35,7 +34,6 @@ typedef struct dados_paciente
     float altura;
     char tipo_sanguineo[4];
 
-
 } paciente;
 
 
@@ -54,15 +52,27 @@ typedef struct busca
 
 } NomeBusca;
 
-
 NomeBusca lista_indices[MAX_INDICES];
 int indice_paciente = 0;
 
-
+fila *cria_agenda();
+int fila_vazia(fila *f);
+void ler_caracteres(char *string, char *string2);
+int bissexto(int ano);
+int verifica_sangue(char *sangue);
+void insere_paciente(fila *f);
+int remove_paciente(fila *f);
 paciente *buscando_nome(char *nome_busca);
 void procurar_paciente();
+void navegar_agenda(fila *f);
+void mostra_agenda(fila *f);
+void libera_pacientes(fila *f);
+void salvar_agenda(fila *f);
+void salvar_em_txt(paciente *inicio);
+void salvar_em_csv(paciente *inicio);
+void salvar_em_xml(paciente *inicio);
+
 void exibir_cadastro(paciente *aux);
-void ler_caracteres(char *string, char *string2);
 
 
 void limpa_tela()
@@ -135,15 +145,14 @@ void ler_caracteres(char *string, char *string2)
 }
 
 
-paciente *alocar(char *nome, int dia, int mes, int ano, char sexo, long long int telefone, long long int cpf, char *email, float peso, float altura, char *sangue, paciente *antecessor)
+paciente *alocar(char *nome, int dia, int mes, int ano, char sexo, long long int telefone, long long int cpf, 
+                 char *email, float peso, float altura, char *sangue, paciente *antecessor)
 {
     paciente *aux = (paciente *)malloc(sizeof(paciente));
     if (!aux)
         exit(1);
     else
     {
-
-
         strcpy(aux->nome, nome);
         aux->datanasc.dia = dia;
         aux->datanasc.mes = mes;
@@ -220,7 +229,8 @@ void insere_paciente(fila *f)
                 dias_mes = 30;
                 break;
             case 2:
-                dias_mes = bissexto(ano) ? 29 : 28; // funciona como se fosse um if (bissexto(ano)) return 29, else if return 28
+                dias_mes = bissexto(ano) ? 29 : 28; 
+                // funciona como se fosse um if (bissexto(ano)) return 29, else if return 28
                 break;
         }
 
@@ -330,7 +340,6 @@ void insere_paciente(fila *f)
 paciente *buscando_nome(char *nome_busca)
 {
 
-
     for (int i = 0; i < indice_paciente; i++)
     {
         if (strcmp(lista_indices[i].nome, nome_busca) == 0)
@@ -377,8 +386,6 @@ int remove_paciente(fila *f)
     paciente *aux = f->inicio;
     printf("Paciente removido da fila: %s\n", aux->nome);
 
-
-    // --- INÍCIO DA CORREÇÃO ---
     // Precisamos remover o paciente também do array de índice
     int indice_encontrado = -1;
     // 1. Encontra a posição do paciente no array de índice
@@ -400,8 +407,6 @@ int remove_paciente(fila *f)
         }
         indice_paciente--; // Diminui o contador total de índices
     }
-    // --- FIM DA CORREÇÃO ---
-
 
     f->inicio = f->inicio->proximo;
     if (f->inicio == NULL)
@@ -549,7 +554,8 @@ void salvar_em_csv(paciente *inicio)
     { // Enquanto houver pacientes
         // Escreve os dados no formato CSV: cada paciente em uma linha
         fprintf(arquivo, "%s;%02d;%02d;%04d;%c;%lld;%lld;%s;%f;%f;%s\n",
-                aux->nome, aux->datanasc.dia, aux->datanasc.mes, aux->datanasc.ano, aux->sexo, aux->telefone, aux->cpf, aux->email, aux->peso, aux->altura, aux->tipo_sanguineo);
+                aux->nome, aux->datanasc.dia, aux->datanasc.mes, aux->datanasc.ano, aux->sexo, 
+                aux->telefone, aux->cpf, aux->email, aux->peso, aux->altura, aux->tipo_sanguineo);
         aux = aux->proximo; // Avança para o próximo paciente
     }
 
