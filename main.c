@@ -61,6 +61,12 @@ void ler_caracteres(char *string, char *string2);
 int bissexto(int ano);
 int verifica_sangue(char *sangue);
 void insere_paciente(fila *f);
+paciente *alocar(char *nome, int dia, int mes, int ano,
+                 char sexo, long long int telefone, 
+                 long long int cpf, char *email, 
+                 float peso, float altura, char *sangue,
+                 paciente *antecessor)
+
 int remove_paciente(fila *f);
 paciente *buscando_nome(char *nome_busca);
 void procurar_paciente();
@@ -71,7 +77,6 @@ void salvar_agenda(fila *f);
 void salvar_em_txt(paciente *inicio);
 void salvar_em_csv(paciente *inicio);
 void salvar_em_xml(paciente *inicio);
-
 void exibir_cadastro(paciente *aux);
 
 
@@ -109,8 +114,6 @@ fila *cria_agenda()
 
 int fila_vazia(fila *f)
 {
-    /*if (f == NULL)
-        return 1; // fila não inicializada*/
     if (f->inicio == NULL)
         return 1; // início da fila aponta para NULL
     else
@@ -145,8 +148,7 @@ void ler_caracteres(char *string, char *string2)
 }
 
 
-paciente *alocar(char *nome, int dia, int mes, int ano, char sexo, long long int telefone, long long int cpf, 
-                 char *email, float peso, float altura, char *sangue, paciente *antecessor)
+paciente *alocar(char *nome, int dia, int mes, int ano, char sexo, long long int telefone, long long int cpf, char *email, float peso, float altura, char *sangue, paciente *antecessor)
 {
     paciente *aux = (paciente *)malloc(sizeof(paciente));
     if (!aux)
@@ -656,13 +658,15 @@ void salvar_agenda(fila *f)
 }
 
 
+
 void libera_pacientes(fila *f)
-{
-    paciente *aux = f->inicio;
-    do
+{   
+    while (!fila_vazia(f))
     {
         remove_paciente(f);
-    } while (!fila_vazia(f));
+    } 
+    f->inicio = NULL;
+    f->fim = NULL;
 }
 
 
