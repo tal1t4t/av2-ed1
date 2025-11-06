@@ -13,6 +13,7 @@ typedef struct nascimento
     int ano;
 } data;
 
+
 typedef struct dados_paciente
 {
     /* DADOS PARA MANIPULAÇÃO DA FILA */
@@ -34,6 +35,7 @@ typedef struct dados_paciente
     float altura;
     char tipo_sanguineo[4];
 
+
 } paciente;
 
 
@@ -52,32 +54,15 @@ typedef struct busca
 
 } NomeBusca;
 
+
 NomeBusca lista_indices[MAX_INDICES];
 int indice_paciente = 0;
 
-fila *cria_agenda();
-int fila_vazia(fila *f);
-void ler_caracteres(char *string, char *string2);
-int bissexto(int ano);
-int verifica_sangue(char *sangue);
-void insere_paciente(fila *f);
-paciente *alocar(char *nome, int dia, int mes, int ano,
-                 char sexo, long long int telefone, 
-                 long long int cpf, char *email, 
-                 float peso, float altura, char *sangue,
-                 paciente *antecessor)
 
-int remove_paciente(fila *f);
 paciente *buscando_nome(char *nome_busca);
 void procurar_paciente();
-void navegar_agenda(fila *f);
-void mostra_agenda(fila *f);
-void libera_pacientes(fila *f);
-void salvar_agenda(fila *f);
-void salvar_em_txt(paciente *inicio);
-void salvar_em_csv(paciente *inicio);
-void salvar_em_xml(paciente *inicio);
 void exibir_cadastro(paciente *aux);
+void ler_caracteres(char *string, char *string2);
 
 
 void limpa_tela()
@@ -114,6 +99,8 @@ fila *cria_agenda()
 
 int fila_vazia(fila *f)
 {
+    /*if (f == NULL)
+        return 1; // fila não inicializada*/
     if (f->inicio == NULL)
         return 1; // início da fila aponta para NULL
     else
@@ -155,6 +142,8 @@ paciente *alocar(char *nome, int dia, int mes, int ano, char sexo, long long int
         exit(1);
     else
     {
+
+
         strcpy(aux->nome, nome);
         aux->datanasc.dia = dia;
         aux->datanasc.mes = mes;
@@ -231,8 +220,7 @@ void insere_paciente(fila *f)
                 dias_mes = 30;
                 break;
             case 2:
-                dias_mes = bissexto(ano) ? 29 : 28; 
-                // funciona como se fosse um if (bissexto(ano)) return 29, else if return 28
+                dias_mes = bissexto(ano) ? 29 : 28; // funciona como se fosse um if (bissexto(ano)) return 29, else if return 28
                 break;
         }
 
@@ -339,8 +327,12 @@ void insere_paciente(fila *f)
     printf("\nPaciente cadastrado com sucesso!\n");
 }
 
+
+
+
 paciente *buscando_nome(char *nome_busca)
 {
+
 
     for (int i = 0; i < indice_paciente; i++)
     {
@@ -385,8 +377,25 @@ int remove_paciente(fila *f)
         printf("Lista vazia! Impossível fazer a remoção.\n\n");
         return 0;
     }
-    paciente *aux = f->inicio;
+
+
+    char nome_busca[60];
+    paciente *identificar_paciente;
+    limpa_buffer();
+
+
+    ler_caracteres(nome_busca, "Digite o nome do paciente para remover: ");
+
+    identificar_paciente = buscando_nome(nome_busca);
+    if (identificar_paciente == NULL){
+        printf("\nPaciente NÃO Encontrado!\n");
+        return 1;
+    }
+    paciente *aux = identificar_paciente;
+
+
     printf("Paciente removido da fila: %s\n", aux->nome);
+
 
     // Precisamos remover o paciente também do array de índice
     int indice_encontrado = -1;
@@ -410,15 +419,23 @@ int remove_paciente(fila *f)
         indice_paciente--; // Diminui o contador total de índices
     }
 
-    f->inicio = f->inicio->proximo;
-    if (f->inicio == NULL)
-    {
+    if(f->inicio == f->fim){
+        f->inicio = NULL;
         f->fim = NULL;
     }
-    else
-    {
+    else if(identificar_paciente == f->inicio){ //se o paciente estiver no inicio
+        f->inicio = f->inicio->proximo;
         f->inicio->anterior = NULL;
     }
+     else if(identificar_paciente == f->fim){ //se o paciente estiver no fimm da lista
+        f->fim = f->fim->anterior;
+        f->fim->proximo = NULL;
+    }
+     else{//se estiver em qualquer lugar do meio
+        identificar_paciente->anterior->proximo = identificar_paciente->proximo;
+        identificar_paciente->proximo->anterior = identificar_paciente->anterior;
+    }
+
     free(aux);
     aux = NULL;
     return 1;
@@ -439,8 +456,8 @@ void navegar_agenda(fila *f)
     {
         printf("\n Percorrer Fila;\n");
         printf("  0 Sair;\n");
-        printf("  1 Proximo;\n");
-        printf("  2 Anterior;\n");
+        printf("  1 Anterior;\n");
+        printf("  2 Próximo;\n");
         scanf("%d", &opcao);
         limpa_tela();
         switch (opcao)
@@ -448,7 +465,7 @@ void navegar_agenda(fila *f)
         case 0:
             continua = 0;
             break;
-        case 1:
+        case 2:
             if (elemento->proximo != NULL)
             {
                 elemento = elemento->proximo;
@@ -460,7 +477,7 @@ void navegar_agenda(fila *f)
                 exibir_cadastro(elemento);
             }
             break;
-        case 2:
+        case 1:
             if (elemento->anterior != NULL)
             {
                 elemento = elemento->anterior;
@@ -556,8 +573,7 @@ void salvar_em_csv(paciente *inicio)
     { // Enquanto houver pacientes
         // Escreve os dados no formato CSV: cada paciente em uma linha
         fprintf(arquivo, "%s;%02d;%02d;%04d;%c;%lld;%lld;%s;%f;%f;%s\n",
-                aux->nome, aux->datanasc.dia, aux->datanasc.mes, aux->datanasc.ano, aux->sexo, 
-                aux->telefone, aux->cpf, aux->email, aux->peso, aux->altura, aux->tipo_sanguineo);
+                aux->nome, aux->datanasc.dia, aux->datanasc.mes, aux->datanasc.ano, aux->sexo, aux->telefone, aux->cpf, aux->email, aux->peso, aux->altura, aux->tipo_sanguineo);
         aux = aux->proximo; // Avança para o próximo paciente
     }
 
@@ -658,13 +674,13 @@ void salvar_agenda(fila *f)
 }
 
 
-
 void libera_pacientes(fila *f)
-{   
+{
+
     while (!fila_vazia(f))
     {
         remove_paciente(f);
-    } 
+    }
     f->inicio = NULL;
     f->fim = NULL;
 }
@@ -724,8 +740,6 @@ int main()
         case 6:
             salvar_agenda(f);
             break;
-
-
         default:
             printf("Opção inválida!\n");
             break;
